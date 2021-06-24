@@ -1,6 +1,9 @@
 package threadsegregate_fixedpool
 
-import "testing"
+import (
+	"sync"
+	"testing"
+)
 
 type PoolItem struct{
 	counter int
@@ -91,7 +94,10 @@ func TestThreadSegregatedFixedPool_Put(t *testing.T) {
 	}
 }
 
+var wait sync.WaitGroup
+
 func runThread(pool *ThreadSegregatedFixedPool, strategy, numpools int64, numruns int64, t *testing.T){
+	defer wait.Add(-1)
 	for i := int64(0); i < 1000 * numruns; i++ {
 		poolid := (i * strategy) % numpools
 		item := pool.Pop(int(poolid))
@@ -111,9 +117,10 @@ func TestThreadSegregatedFixedPool_Threading(t *testing.T) {
 	numperpool := 100
 	fillPool(pool, numpools, numperpool)
 
-	go runThread(pool, 1, int64(numpools), 10000000000, t)
-	go runThread(pool, 2, int64(numpools), 10000000000, t)
-	go runThread(pool, 3, int64(numpools), 10000000000, t)
-	go runThread(pool, 4, int64(numpools), 10000000000, t)
-
+	wait.Add(4)
+	go runThread(pool, 1, int64(numpools), 100000, t)
+	go runThread(pool, 2, int64(numpools), 100000, t)
+	go runThread(pool, 3, int64(numpools), 100000, t)
+	go runThread(pool, 4, int64(numpools), 100000, t)
+	wait.Wait()
 }
