@@ -54,6 +54,9 @@ func (p *ThreadSegregatedFixedPool)Pop(poolid int)SegmentedPoolItem{
 	p.pools[poolid].mut.Lock()
 	defer p.pools[poolid].mut.Unlock()
 	popped := p.pools[poolid].pool.Pop()
+	if popped == nil{
+		return nil
+	}
 	popped.(SegmentedPoolItem).SetPoolId(poolid)
 	return popped.(SegmentedPoolItem)
 }
