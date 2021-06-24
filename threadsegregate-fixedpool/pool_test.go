@@ -91,6 +91,29 @@ func TestThreadSegregatedFixedPool_Put(t *testing.T) {
 	}
 }
 
+func runThread(pool *ThreadSegregatedFixedPool, strategy, numpools int64, numruns int64, t *testing.T){
+	for i := int64(0); i < 1000 * numruns; i++ {
+		poolid := (i * strategy) % numpools
+		item := pool.Pop(int(poolid))
+
+		if item.GetPoolId() != int(poolid){
+			t.Error("Incorrect pool id ", poolid, item.GetPoolId())
+			t.FailNow()
+		}
+		pool.Put(item)
+	}
+}
+
 func TestThreadSegregatedFixedPool_Threading(t *testing.T) {
+
+	numpools := 4
+	pool := NewThreadSegregatedFixedPool(numpools)
+	numperpool := 100
+	fillPool(pool, numpools, numperpool)
+
+	go runThread(pool, 1, int64(numpools), 10000000000, t)
+	go runThread(pool, 2, int64(numpools), 10000000000, t)
+	go runThread(pool, 3, int64(numpools), 10000000000, t)
+	go runThread(pool, 4, int64(numpools), 10000000000, t)
 
 }
