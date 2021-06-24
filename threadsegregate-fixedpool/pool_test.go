@@ -55,7 +55,7 @@ func TestThreadSegregatedFixedPool_PutById(t *testing.T) {
 func TestThreadSegregatedFixedPool_Put(t *testing.T) {
 	numpools := 4
 	pool := NewThreadSegregatedFixedPool(numpools)
-	numperpool := 10
+	numperpool := 100
 	fillPool(pool, numpools, numperpool)
 
 	///this should keep running til the end
